@@ -14,6 +14,185 @@ NRF.setServices(undefined, { hid : kb.report });
 
 
 // end of ble stuff
+Modules.addCached("ble_hid_keyboard",function(){exports.report=new Uint8Array([5,1,9,6,161,1,5,7,25,224,41,231,21,0,37,1,117,1,149,8,129,2,149,1,117,8,129,1,149,5,117,1,5,8,25,1,41,5,145,2,149,1,117,3,145,1,149,6,117,8,21,0,37,115,5,7,25,0,41,115,129,0,9,5,21,0,38,255,0,117,8,149,2,177,2,192]);exports.MODIFY={CTRL:1,SHIFT:2,ALT:4,GUI:8,LEFT_CTRL:1,LEFT_SHIFT:2,LEFT_ALT:4,LEFT_GUI:8,RIGHT_CTRL:16,RIGHT_SHIFT:32,RIGHT_ALT:64,RIGHT_GUI:128};exports.KEY={A:4,B:5,C:6,D:7,E:8,F:9,G:10,H:11,I:12,J:13,K:14,L:15,M:16,N:17,O:18,
+P:19,Q:20,R:21,S:22,T:23,U:24,V:25,W:26,X:27,Y:28,Z:29,1:30,2:31,3:32,4:33,5:34,6:35,7:36,8:37,9:38,0:39,ENTER:40,"\n":40,ESC:41,BACKSPACE:42,"\t":43," ":44,"-":45,"=":46,"[":47,"]":48,"\\":49,NUMBER:50,";":51,"'":52,"~":53,",":54,".":55,"/":56,CAPS_LOCK:57,F1:58,F2:59,F3:60,F4:61,F5:62,F6:63,F7:64,F8:65,F9:66,F10:67,F11:68,F12:69,PRINTSCREEN:70,SCROLL_LOCK:71,PAUSE:72,INSERT:73,HOME:74,PAGE_UP:75,DELETE:76,END:77,PAGE_DOWN:78,RIGHT:79,LEFT:80,DOWN:81,UP:82,NUM_LOCK:83,PAD_SLASH:84,PAD_ASTERIX:85,
+PAD_MINUS:86,PAD_PLUS:87,PAD_ENTER:88,PAD_1:89,PAD_2:90,PAD_3:91,PAD_4:92,PAD_5:93,PAD_6:94,PAD_7:95,PAD_8:96,PAD_9:97,PAD_0:98,PAD_PERIOD:99};exports.tap=function(b,c,a){NRF.sendHIDReport([c,0,b,0,0,0,0,0],function(){NRF.sendHIDReport([0,0,0,0,0,0,0,0],function(){a&&a()})})}});
+Modules.addCached("ble_hid_keyboard",function(){exports.report=new Uint8Array([5,1,9,6,161,1,5,7,25,224,41,231,21,0,37,1,117,1,149,8,129,2,149,1,117,8,129,1,149,5,117,1,5,8,25,1,41,5,145,2,149,1,117,3,145,1,149,6,117,8,21,0,37,115,5,7,25,0,41,115,129,0,9,5,21,0,38,255,0,117,8,149,2,177,2,192]);exports.MODIFY={CTRL:1,SHIFT:2,ALT:4,GUI:8,LEFT_CTRL:1,LEFT_SHIFT:2,LEFT_ALT:4,LEFT_GUI:8,RIGHT_CTRL:16,RIGHT_SHIFT:32,RIGHT_ALT:64,RIGHT_GUI:128};exports.KEY={A:4,B:5,C:6,D:7,E:8,F:9,G:10,H:11,I:12,J:13,K:14,L:15,M:16,N:17,O:18,
+P:19,Q:20,R:21,S:22,T:23,U:24,V:25,W:26,X:27,Y:28,Z:29,1:30,2:31,3:32,4:33,5:34,6:35,7:36,8:37,9:38,0:39,ENTER:40,"\n":40,ESC:41,BACKSPACE:42,"\t":43," ":44,"-":45,"=":46,"[":47,"]":48,"\\":49,NUMBER:50,";":51,"'":52,"~":53,",":54,".":55,"/":56,CAPS_LOCK:57,F1:58,F2:59,F3:60,F4:61,F5:62,F6:63,F7:64,F8:65,F9:66,F10:67,F11:68,F12:69,PRINTSCREEN:70,SCROLL_LOCK:71,PAUSE:72,INSERT:73,HOME:74,PAGE_UP:75,DELETE:76,END:77,PAGE_DOWN:78,RIGHT:79,LEFT:80,DOWN:81,UP:82,NUM_LOCK:83,PAD_SLASH:84,PAD_ASTERIX:85,
+PAD_MINUS:86,PAD_PLUS:87,PAD_ENTER:88,PAD_1:89,PAD_2:90,PAD_3:91,PAD_4:92,PAD_5:93,PAD_6:94,PAD_7:95,PAD_8:96,PAD_9:97,PAD_0:98,PAD_PERIOD:99};exports.tap=function(b,c,a){NRF.sendHIDReport([c,0,b,0,0,0,0,0],function(){NRF.sendHIDReport([0,0,0,0,0,0,0,0],function(){a&&a()})})}});
+/*TC.on('touch', t=>{ 
+    g.clear();
+    g.drawString("touched:\nX:" + t.x + "\nY:"+ t.y,240,240,true);
+                                      });
+  
+*/
+
+//keyboard ble stuff
+
+let kb = require("ble_hid_keyboard");
+NRF.setServices(undefined, { hid : kb.report });
+
+
+// end of ble stuff
+
+
+// draw keyboard and handle presses
+
+g.clear();
+const DEFAULT_SELECTION = '0';
+
+const COLORS = {
+  // [normal, selected]
+  DEFAULT: ['#7F8183', '#A6A6A7'],
+  OPERATOR: ['#F99D1C', '#CA7F2A'],
+  SPECIAL: ['#65686C', '#7F8183']
+};
+
+function f(xy){return (67+Math.floor(xy*4/3));}
+
+const keys = {
+  '1': {
+    xy: [0,0,60,40]
+  },
+  '2': {
+    xy: [60,0,120,40]
+  },
+  '3': {
+    xy: [120,0,180,40]
+  },
+  '4': {
+    xy: [180,0,240,40]
+  },
+  'Q': {
+    xy: [0, 40, 60, 80]
+  },
+  'W': {
+    xy: [60, 40, 120, 80]
+  },
+  'E': {
+    xy: [120, 40, 180, 80]
+  },
+  'R': {
+    xy: [180, 40, 240,80]
+  },
+  'A': {
+    xy: [0, 80, 60, 120]
+  },
+  'S': {
+    xy: [60, 80, 120, 120]
+  },
+  'D': {
+    xy: [120, 80, 180, 120]
+  },
+  'F': {
+    xy: [180, 80, 240, 120]
+  },
+  'Z': {
+    xy: [0, 120, 60, 160]
+  },
+  'X': {
+    xy: [60, 120, 120, 160]
+  },
+  'C': {
+    xy: [120, 120, 180, 160]
+  },
+  'V': {
+    xy: [180, 120, 240 ,160]
+  }
+};
+
+
+function drawKey(name, k, selected) {
+    let color = k.color || COLORS.DEFAULT;
+    g.setColor(color[selected ? 1 : 0]);
+    g.setFont('Vector', 28);
+    g.drawRect(f(k.xy[0]), f(k.xy[1]), f(k.xy[2]), f(k.xy[3]));
+    g.setColor(-1);
+    let xc = f(k.xy[0]+(k.xy[2]-k.xy[0])/2);
+    let yc = f(k.xy[1]+(k.xy[3]-k.xy[1])/2);
+    g.setFontAlign(0,0).drawString(k.val || name, xc, yc);
+  }
+
+function isPressed(k,p) {
+    let xy = keys[k].xy;
+    if (p.x>f(xy[0]) && p.y>f(xy[1]) && p.x<f(xy[2]) && p.y<f(xy[3])) {
+       drawKey(k, keys[k], true);
+       setTimeout(()=>{drawKey(k, keys[k], false);},200);
+       selected=k;
+       return true;
+    }
+    return false;
+ }
+
+function buttonPress(val) {
+  g.drawString(val,200,400,true);
+  switch (val) {
+    case 'Q':
+      kb.tap(kb.KEY[val],0);
+      break;
+    case 'W':
+      kb.tap(kb.KEY.W,0);
+      break;
+    case 'E':
+      kb.tap(kb.KEY.E,0);
+      break;
+    case 'R':
+      kb.tap(kb.KEY.R,0);
+      break;
+    case 'A':
+      kb.tap(kb.KEY.A,0);
+      break;
+    case 'S':
+      kb.tap(kb.KEY.S,0);
+      break;
+    case 'D':
+      kb.tap(kb.KEY.D,0);
+      break;
+    case 'F':
+      kb.tap(kb.KEY.F,0);
+      break;
+    case 'Z':
+      kb.tap(kb.KEY,Z,0);
+      break;
+    case 'X':
+      kb.tap(kb.KEY.X,0);
+      break;
+    case 'C':
+      kb.tap(kb.KEY.C,0);
+      break;
+    case 'V':
+      kb.tap(kb.KEY.V,0);
+      break;
+    case '1':
+      kb.tap(30,0);
+      break;
+    case '2':
+      kb.tap(31,0);
+      break;
+    case '3':
+      kb.tap(32,0);
+      break;
+    case '4':
+      kb.tap(33,0);
+      break;
+    default:
+      break;
+  }
+}
+
+ TC.on("touch",(p)=> {
+   for (let k in keys)
+     if (isPressed(k,p))
+        buttonPress(k.toString());
+ });
+
+ function initdraw(){
+    for (let k in keys) drawKey(k, keys[k], false);
+  }
+  setTimeout(initdraw,1000);
+  
+  
+  
 
 
 // draw keyboard and handle presses
