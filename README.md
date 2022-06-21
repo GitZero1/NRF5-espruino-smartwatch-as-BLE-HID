@@ -1,4 +1,4 @@
-# NRF5-espruino-smartwatch-as-Keyboard
+# NRF5-espruino-smartwatch-as-BLE-HID
 useless smartwatch app for fun contest entry. 
 
 This is a quick project I am doing for fun to submit as a contest entry. 
